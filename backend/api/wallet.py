@@ -46,6 +46,10 @@ def transfer_funds(sender, recipient, amount):
         if amount <= 0:
             return jsonify({'error': 'Amount must be positive'}), 400
         
+        # Check if sender is trying to send to themselves
+        if sender == recipient:
+            return jsonify({'error': 'Cannot send transaction to yourself'}), 400
+        
         # Get blockchain instance
         blockchain = get_blockchain()
         
@@ -77,5 +81,49 @@ def get_user_balance(username):
             'username': username,
             'balance': balance
         }), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+def get_user_transaction_history(username):
+    """Get user transaction history from blockchain"""
+    try:
+        blockchain = get_blockchain()
+        
+        # Get all transactions for the user from confirmed blocks
+        user_transactions = []
+        
+        # Iterate through all blocks in the blockchain
+        for block in blockchain.chain:
+            # Skip genesis block (no transactions)
+            if block.get('index', 0) == 1:  # Genesis block has index 1
+                continue
+                
+            # Check transactions in each block
+            transactions = block.get('transactions', [])
+            for transaction in transactions:
+                # Include transaction if user is sender or recipient
+                if transaction.get('sender') == username or transaction.get('recipient') == username:
+                    transaction_data = {
+                        'hash': transaction.get('hash', f"tx_{block.get('index', 0)}_{len(user_transactions)}"),
+                        'sender': transaction.get('sender', ''),
+                        'recipient': transaction.get('recipient', ''),
+                        'amount': transaction.get('amount', 0),
+                        'timestamp': transaction.get('timestamp', block.get('timestamp', 0)),
+                        'block_index': block.get('index', 0),
+                        'block_hash': block.get('previous_hash', ''),
+                        'type': 'sent' if transaction.get('sender') == username else 'received',
+                        'status': 'confirmed'
+                    }
+                    user_transactions.append(transaction_data)
+        
+        # Sort transactions by timestamp (newest first)
+        user_transactions.sort(key=lambda x: x['timestamp'], reverse=True)
+        
+        return jsonify({
+            'username': username,
+            'transactions': user_transactions,
+            'total_transactions': len(user_transactions)
+        }), 200
+        
     except Exception as e:
         return jsonify({'error': str(e)}), 500

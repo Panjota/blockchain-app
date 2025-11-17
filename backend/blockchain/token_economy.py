@@ -80,6 +80,9 @@ class TokenEconomy:
     
     def transfer_tokens(self, sender, recipient, amount):
         """Transfer tokens between users"""
+        if sender == recipient:
+            return False, "Cannot send transaction to yourself"
+        
         if sender not in self.balances:
             return False, "Sender account not found"
         

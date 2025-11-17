@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from blockchain.blockchain import Blockchain
 from api.auth import register as register_user, login as login_user
-from api.wallet import transfer_funds, get_user_balance
+from api.wallet import transfer_funds, get_user_balance, get_user_transaction_history
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -33,6 +33,10 @@ def transfer():
 @app.route('/balance/<username>', methods=['GET'])
 def get_balance(username):
     return get_user_balance(username)
+
+@app.route('/transactions/<username>', methods=['GET'])
+def get_transaction_history(username):
+    return get_user_transaction_history(username)
 
 @app.route('/network/stats', methods=['GET'])
 def get_network_stats():
