@@ -1,0 +1,397 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{indentfirst}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{float}
+
+\geometry{left=3cm,right=2cm,top=3cm,bottom=2cm}
+\onehalfspacing
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+\begin{document}
+
+\begin{titlepage}
+    \begin{center}
+        \vspace*{1cm}
+        
+        \textbf{\Large UNIVERSIDADE DO ESTADO DO AMAZONAS}\\
+        \textbf{\large ESCOLA SUPERIOR DE TECNOLOGIA}\\
+        \textbf{\large CURSO DE ENGENHARIA DA COMPUTAÇÃO}
+        
+        \vspace{3cm}
+        
+        \textbf{\Large APLICAÇÃO BLOCKCHAIN EDUCACIONAL}\\
+        \vspace{0.5cm}
+        \textbf{\large Relatório Técnico}
+        
+        \vspace{3cm}
+        
+        \textbf{Tópicos Especiais em Computação IV}
+        
+        \vfill
+        
+        \vspace{1cm}
+        
+        Manaus\\
+        \the\year
+        
+    \end{center}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+\section{Introdução}
+
+Este relatório apresenta uma aplicação blockchain educacional desenvolvida para demonstrar os conceitos fundamentais de tecnologia blockchain de forma prática e didática. O projeto foi construído utilizando Python no backend e React com TypeScript no frontend.
+
+\subsection{O que é o Projeto}
+
+É um sistema de blockchain local funcional que possui:
+\begin{itemize}
+    \item 1.000.000 de tokens no total
+    \item Sistema de cadastro de usuários
+    \item Cada novo usuário recebe 10 tokens iniciais
+    \item Permite transferências entre usuários
+    \item Interface web para interação
+\end{itemize}
+
+\subsection{Objetivos do Relatório}
+
+Este relatório busca explicar três conceitos fundamentais:
+\begin{enumerate}
+    \item O que são blocos, hash e encadeamento criptográfico
+    \item Como novos blocos são adicionados à blockchain
+    \item Vantagens e limitações deste modelo
+\end{enumerate}
+
+\section{Explicação dos Conceitos de Bloco, Hash e Encadeamento}
+
+\subsection{O que é um Bloco}
+
+Um bloco é como uma "caixa" que armazena informações na blockchain. Cada bloco contém:
+
+\begin{itemize}
+    \item \textbf{Índice}: Número do bloco (1, 2, 3...)
+    \item \textbf{Timestamp}: Data e hora de criação
+    \item \textbf{Transações}: Lista de transferências de tokens
+    \item \textbf{Hash anterior}: Referência ao bloco anterior
+    \item \textbf{Proof}: Número que valida o bloco
+\end{itemize}
+
+Exemplo simplificado do código:
+
+\begin{lstlisting}[language=Python, caption=Estrutura básica de um bloco]
+class Block:
+    def __init__(self, index, timestamp, transactions, 
+                 previous_hash):
+        self.index = index
+        self.timestamp = timestamp
+        self.transactions = transactions
+        self.previous_hash = previous_hash
+        self.hash = self.calculate_hash()
+
+    def calculate_hash(self):
+        block_string = f"{self.index}{self.timestamp}" \
+                      f"{self.transactions}{self.previous_hash}"
+        return hashlib.sha256(block_string.encode()).hexdigest()
+\end{lstlisting}
+
+\subsection{O que é Hash}
+
+Hash é como uma "impressão digital" única de um bloco. É uma sequência de 64 caracteres gerada através de um algoritmo matemático (SHA-256) que transforma todas as informações do bloco em um código único.
+
+\subsubsection{Como Funciona}
+
+\begin{enumerate}
+    \item Pegamos todas as informações do bloco (índice, timestamp, transações, etc.)
+    \item Aplicamos o algoritmo SHA-256
+    \item Resultado: uma sequência única como "a3f5b8c2d9..."
+\end{enumerate}
+
+\textbf{Propriedades importantes:}
+\begin{itemize}
+    \item Mesma informação = mesmo hash (sempre)
+    \item Qualquer mudança mínima = hash completamente diferente
+    \item Impossível descobrir a informação original apenas pelo hash
+\end{itemize}
+
+Exemplo do código que calcula o hash:
+
+\begin{lstlisting}[language=Python, caption=Cálculo do hash de um bloco]
+def hash(self, block):
+    block_string = str(block).encode()
+    return hashlib.sha256(block_string).hexdigest()
+\end{lstlisting}
+
+\subsection{O que é Encadeamento}
+
+Encadeamento é a forma como os blocos estão conectados uns aos outros, formando uma "corrente" que não pode ser quebrada.
+
+\subsubsection{Como Funciona o Encadeamento}
+
+\begin{enumerate}
+    \item \textbf{Bloco 1 (Gênesis)}: Primeiro bloco, criado sem referência anterior
+    \item \textbf{Bloco 2}: Contém o hash do Bloco 1
+    \item \textbf{Bloco 3}: Contém o hash do Bloco 2
+    \item E assim por diante...
+\end{enumerate}
+
+\textbf{Por que isso é seguro?}
+
+Se alguém tentar alterar uma transação no Bloco 2:
+\begin{itemize}
+    \item O hash do Bloco 2 muda completamente
+    \item O Bloco 3 tem o hash antigo do Bloco 2 armazenado
+    \item O sistema detecta que não batem e invalida a alteração
+    \item Seria necessário alterar TODOS os blocos seguintes (praticamente impossível)
+\end{itemize}
+
+Código que valida o encadeamento:
+
+\begin{lstlisting}[language=Python, caption=Validação da integridade da cadeia]
+def validate_chain(self):
+    for i in range(1, len(self.chain)):
+        block = self.chain[i]
+        previous_block = self.chain[i - 1]
+
+        if block['previous_hash'] != self.hash(previous_block):
+            return False
+
+        if not self.is_proof_valid(previous_block['proof'], 
+                                   block['proof']):
+            return False
+    return True
+\end{lstlisting}
+
+\section{Como Novos Blocos São Adicionados à Cadeia}
+
+\subsection{Processo Passo a Passo}
+
+Quando um usuário faz uma transferência de tokens, acontece o seguinte:
+
+\begin{lstlisting}[language=Python, caption=Adição de transação]
+def add_transaction(self, sender, recipient, amount):
+    # Valida transacao atraves da economia de tokens
+    success, message = self.token_economy.transfer_tokens(
+        sender, recipient, amount)
+    
+    if not success:
+        return False, message
+    
+    transaction = {
+        'sender': sender,
+        'recipient': recipient,
+        'amount': amount,
+        'timestamp': self.get_current_timestamp(),
+        'hash': self.generate_transaction_hash(sender, 
+                                               recipient, amount)
+    }
+    
+    self.current_transactions.append(transaction)
+\end{lstlisting}
+
+\subsection{Proof of Work - A Mineracao}
+
+Antes de adicionar um bloco, o sistema precisa resolver um quebra-cabeca matematico. Isso torna dificil adicionar blocos falsos.
+
+\subsubsection{Como Funciona}
+
+O sistema precisa encontrar um numero que, quando combinado com informacoes do bloco anterior, gere um hash comecando com quatro zeros.
+
+\begin{lstlisting}[language=Python, caption=Algoritmo de Proof of Work]
+def proof_of_work(self, last_proof):
+    proof = 0
+    while not self.is_proof_valid(last_proof, proof):
+        proof += 1
+    return proof
+
+def is_proof_valid(self, last_proof, proof):
+    guess = f'{last_proof}{proof}'.encode()
+    guess_hash = hashlib.sha256(guess).hexdigest()
+    return guess_hash[:4] == "0000"
+\end{lstlisting}
+
+\textbf{Por que isso eh importante?}
+\begin{itemize}
+    \item Demora um tempo para encontrar esse numero
+    \item Dificulta fraudes (seria necessario refazer todo o trabalho)
+    \item Todos podem verificar se o numero esta correto (eh facil conferir)
+\end{itemize}
+
+\subsection{Criacao e Adicao do Bloco}
+
+Depois de resolver o quebra-cabeca, o bloco eh criado:
+
+\begin{lstlisting}[language=Python, caption=Criação e adição de bloco]
+def create_block(self, proof, previous_hash):
+    block = {
+        'index': len(self.chain) + 1,
+        'timestamp': self.get_current_timestamp(),
+        'transactions': self.current_transactions,
+        'proof': proof,
+        'previous_hash': previous_hash,
+    }
+    self.current_transactions = []
+    self.chain.append(block)
+    
+    # Persiste blockchain
+    self.save_blockchain()
+    
+    return block
+\end{lstlisting}
+
+\subsection{Resumo do Processo Completo}
+
+\textbf{Passo a passo de quando um usuario faz uma transferencia:}
+
+\begin{enumerate}
+    \item \textbf{Usuario solicita transferencia} na interface web
+    \item \textbf{Sistema valida}: O usuario tem saldo suficiente?
+    \item \textbf{Transacao eh criada} com remetente, destinatario e valor
+    \item \textbf{Proof of Work}: Sistema resolve o quebra-cabeca matematico
+    \item \textbf{Novo bloco eh criado} contendo a transacao
+    \item \textbf{Hash anterior}: Sistema pega o hash do ultimo bloco
+    \item \textbf{Bloco eh adicionado} ao final da cadeia
+    \item \textbf{Dados sao salvos} em arquivo
+    \item \textbf{Confirmacao} eh enviada ao usuario
+\end{enumerate}
+
+\textbf{Analogia simples:} Eh como escrever em um caderno onde cada pagina (bloco) tem um resumo (hash) da pagina anterior. Se alguem tentar apagar algo de uma pagina antiga, os resumos das paginas seguintes nao vao bater, revelando a alteracao.
+
+\section{Tecnologias Utilizadas}
+
+A aplicação foi desenvolvida em duas partes:
+
+\subsection{Backend (Python)}
+\begin{itemize}
+    \item \textbf{Python + Flask}: Servidor que processa as transações
+    \item \textbf{SHA-256}: Algoritmo para gerar os hashes
+    \item \textbf{JSON}: Formato para salvar os dados (blocos, usuários, saldos)
+\end{itemize}
+
+\subsection{Frontend (React)}
+\begin{itemize}
+    \item \textbf{React + TypeScript}: Interface visual para os usuários
+    \item \textbf{Telas}: Login, cadastro, dashboard com saldo e transferências
+\end{itemize}
+
+\section{Vantagens do Modelo Desenvolvido}
+
+\subsection{Transparência}
+Todos podem ver todas as transações e blocos da rede. Não há segredos sobre o histórico de operações.
+
+\subsection{Imutabilidade (Nao Pode Ser Alterado)}
+Uma vez que uma transacao esta em um bloco, eh praticamente impossivel altera-la ou apaga-la. O encadeamento protege contra modificacoes.
+
+\subsection{Segurança}
+\begin{itemize}
+    \item Senhas protegidas com hash
+    \item Sistema verifica se você tem saldo antes de transferir
+    \item Proof of Work dificulta fraudes
+\end{itemize}
+
+\subsection{Sem Autoridade Central}
+Nao precisa de um banco ou governo para validar as transacoes. A matematica e o codigo fazem isso automaticamente.
+
+\subsection{Auditavel}
+Eh possivel rastrear qualquer transacao desde o inicio da blockchain ate hoje.
+
+\section{Limitações do Modelo Desenvolvido}
+
+\subsection{Velocidade}
+O Proof of Work deixa as transações mais lentas. Cada bloco demora um tempo para ser criado.
+
+\subsection{Escala}
+Este modelo funciona bem para aprendizado, mas não suportaria milhões de transações como Bitcoin ou Ethereum.
+
+\subsection{Armazenamento}
+Usa arquivos JSON simples. Para uma aplicação real, seria necessário um banco de dados mais robusto.
+
+\subsection{Rede}
+Roda apenas em um computador (local). Uma blockchain real precisa estar distribuída em vários computadores ao mesmo tempo.
+
+\subsection{Seguranca Avancada}
+\begin{itemize}
+    \item Nao tem criptografia de chave publica/privada (como carteiras reais)
+    \item Sistema de login eh basico
+    \item Nao tem protecao contra varios tipos de ataques
+\end{itemize}
+
+\subsection{Funcionalidades Limitadas}
+Nao implementa recursos avancados como:
+\begin{itemize}
+    \item Smart contracts (contratos inteligentes)
+    \item Taxas de transacao
+    \item Multiplos tipos de moedas
+\end{itemize}
+
+\section{Conclusão}
+
+\subsection{O que Aprendemos}
+
+Este projeto demonstrou de forma prática os três conceitos principais:
+
+\begin{enumerate}
+    \item \textbf{Bloco, Hash e Encadeamento}: 
+    \begin{itemize}
+        \item Bloco eh a caixa que guarda as transacoes
+        \item Hash eh a impressao digital unica de cada bloco
+        \item Encadeamento conecta os blocos de forma segura
+    \end{itemize}
+    
+    \item \textbf{Como Blocos Sao Adicionados}:
+    \begin{itemize}
+        \item Transacao eh criada
+        \item Sistema resolve quebra-cabeca matematico (Proof of Work)
+        \item Novo bloco eh criado e encadeado ao anterior
+        \item Dados sao salvos e confirmados
+    \end{itemize}
+    
+    \item \textbf{Vantagens e Limitacoes}:
+    \begin{itemize}
+        \item \textbf{Vantagens}: Transparente, seguro, imutavel, sem autoridade central
+        \item \textbf{Limitacoes}: Lento, nao escala bem, execucao local, funcionalidades basicas
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Consideracoes Finais}
+
+Este projeto eh uma ferramenta educacional que simplifica conceitos complexos de blockchain. Embora tenha limitacoes em comparacao com blockchains reais (Bitcoin, Ethereum), ele cumpre seu objetivo de ensinar os fundamentos de forma clara e pratica.
+
+A experiencia de ver o codigo funcionando ajuda a entender por que blockchains sao consideradas revolucionarias: elas permitem transacoes seguras e verificaveis sem precisar confiar em uma autoridade central.
+
+\textbf{Resumo em uma frase:} Blockchain eh uma cadeia de blocos conectados por hashes, onde cada bloco guarda transacoes de forma segura e transparente, e alterar o passado eh praticamente impossivel devido ao encadeamento criptografico.
+
+\end{document}
