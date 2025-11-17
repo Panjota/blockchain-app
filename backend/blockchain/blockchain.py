@@ -67,8 +67,14 @@ class Blockchain:
         from time import time
         return time()
 
+    def generate_transaction_hash(self, sender, recipient, amount):
+        """Generate a unique hash for the transaction"""
+        import hashlib
+        transaction_string = f"{sender}{recipient}{amount}{self.get_current_timestamp()}"
+        return hashlib.sha256(transaction_string.encode()).hexdigest()
+
     def add_transaction(self, sender, recipient, amount):
-        """Add a validated transaction to the blockchain"""
+        """Add a validated transaction to the blockchain and immediately mine it"""
         # Validate transaction through token economy
         success, message = self.token_economy.transfer_tokens(sender, recipient, amount)
         
@@ -79,15 +85,23 @@ class Blockchain:
             'sender': sender,
             'recipient': recipient,
             'amount': amount,
-            'timestamp': self.get_current_timestamp()
+            'timestamp': self.get_current_timestamp(),
+            'hash': self.generate_transaction_hash(sender, recipient, amount)
         }
         
+        # Add transaction to pending list
         self.current_transactions.append(transaction)
         
-        # Save current state
-        self.save_blockchain()
+        # Immediately mine the transaction into a new block
+        last_block = self.last_block
+        last_proof = last_block['proof']
+        proof = self.proof_of_work(last_proof)
+        previous_hash = self.hash(last_block)
         
-        return True, self.last_block['index'] + 1
+        # Create new block with this transaction
+        new_block = self.create_block(proof, previous_hash)
+        
+        return True, new_block['index']
 
     def create_user_account(self, username):
         """Create a new user account with initial balance"""
@@ -131,3 +145,28 @@ class Blockchain:
         guess = f'{last_proof}{proof}'.encode()
         guess_hash = hashlib.sha256(guess).hexdigest()
         return guess_hash[:4] == "0000"
+
+    def proof_of_work(self, last_proof):
+        """Simple proof of work algorithm"""
+        proof = 0
+        while not self.is_proof_valid(last_proof, proof):
+            proof += 1
+        return proof
+
+    def mine_block(self):
+        """Mine pending transactions into a new block"""
+        if not self.current_transactions:
+            return None, "No transactions to mine"
+        
+        # Get the last block
+        last_block = self.last_block
+        last_proof = last_block['proof']
+        
+        # Find proof of work
+        proof = self.proof_of_work(last_proof)
+        
+        # Create new block with pending transactions
+        previous_hash = self.hash(last_block)
+        block = self.create_block(proof, previous_hash)
+        
+        return block, "Block mined successfully"

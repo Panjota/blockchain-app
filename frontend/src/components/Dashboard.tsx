@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { walletService } from '../services/wallet';
-import { TransferRequest, Transaction } from '../types';
+import { TransferRequest, TransactionHistory } from '../types';
 
 export const Dashboard: React.FC = () => {
   const [balance, setBalance] = useState<number>(0);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [transactions, setTransactions] = useState<TransactionHistory[]>([]);
   const [transferData, setTransferData] = useState<TransferRequest>({
     sender: '',
     recipient: '',
@@ -50,8 +50,15 @@ export const Dashboard: React.FC = () => {
     setLoading(true);
     setTransferMessage('');
 
+    // Validate that user is not sending to themselves
+    if (transferData.sender === transferData.recipient) {
+      setTransferMessage('Error: Cannot send transaction to yourself');
+      setLoading(false);
+      return;
+    }
+
     try {
-      const response = await walletService.transferFunds(transferData);
+      await walletService.transferFunds(transferData);
       setTransferMessage('Transfer successful!');
       setTransferData(prev => ({ ...prev, recipient: '', amount: 0 }));
       await loadUserData(); // Reload balance and transactions
@@ -93,31 +100,74 @@ export const Dashboard: React.FC = () => {
           <p className="balance-amount">${balance.toFixed(2)}</p>
         </section>
 
+
+
         <section id="transactions" className="dashboard-section">
-          <h2>Transaction History</h2>
+          <h2>Transaction History ({transactions.length})</h2>
+          
+          {/* Transaction Statistics */}
+          <div className="transaction-stats">
+            <div className="stat-item">
+              <span className="stat-label">Total Transactions:</span>
+              <span className="stat-value confirmed">{transactions.length}</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">Sent:</span>
+              <span className="stat-value">
+                {transactions.filter(t => t.type === 'sent').length}
+              </span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">Received:</span>
+              <span className="stat-value">
+                {transactions.filter(t => t.type === 'received').length}
+              </span>
+            </div>
+          </div>
+          
           {transactions.length === 0 ? (
             <p>No transactions yet.</p>
           ) : (
-            <table className="transaction-table">
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Sender</th>
-                  <th>Recipient</th>
-                  <th>Amount</th>
-                </tr>
-              </thead>
-              <tbody>
-                {transactions.map((transaction, index) => (
-                  <tr key={index}>
-                    <td>{transaction.date || 'N/A'}</td>
-                    <td>{transaction.sender}</td>
-                    <td>{transaction.recipient}</td>
-                    <td>${transaction.amount.toFixed(2)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="transaction-list">
+              {transactions.map((transaction, index) => (
+                <div key={`${transaction.hash}-${index}`} className={`transaction-item ${transaction.type}`}>
+                  <div className="transaction-header">
+                    <span className={`transaction-type ${transaction.type}`}>
+                      {transaction.type === 'sent' ? '📤 Sent' : '📥 Received'}
+                    </span>
+                    <span className="transaction-amount">
+                      {transaction.type === 'sent' ? '-' : '+'}${transaction.formattedAmount || transaction.amount.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="transaction-details">
+                    <div className="transaction-row">
+                      <span className="label">From:</span>
+                      <span className="value">{transaction.sender}</span>
+                    </div>
+                    <div className="transaction-row">
+                      <span className="label">To:</span>
+                      <span className="value">{transaction.recipient}</span>
+                    </div>
+                    <div className="transaction-row">
+                      <span className="label">Date:</span>
+                      <span className="value">{transaction.date || new Date(transaction.timestamp * 1000).toLocaleString()}</span>
+                    </div>
+                    <div className="transaction-row">
+                      <span className="label">Block:</span>
+                      <span className="value confirmed">
+                        ✅ #{transaction.block_index}
+                      </span>
+                    </div>
+                    {transaction.hash && (
+                      <div className="transaction-row">
+                        <span className="label">Hash:</span>
+                        <span className="value hash">{transaction.hash.substring(0, 16)}...</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </section>
 
@@ -132,8 +182,12 @@ export const Dashboard: React.FC = () => {
                 name="recipient"
                 value={transferData.recipient}
                 onChange={handleTransferChange}
+                className={transferData.recipient === transferData.sender ? 'error' : ''}
                 required
               />
+              {transferData.recipient === transferData.sender && transferData.recipient && (
+                <small className="error-text">⚠️ Cannot send to yourself</small>
+              )}
             </div>
             <div className="form-group">
               <label htmlFor="amount">Amount:</label>
@@ -148,8 +202,12 @@ export const Dashboard: React.FC = () => {
                 required
               />
             </div>
-            <button type="submit" disabled={loading}>
-              {loading ? 'Processing...' : 'Transfer'}
+            <button 
+              type="submit" 
+              disabled={loading || transferData.recipient === transferData.sender}
+            >
+              {loading ? 'Processing...' : 
+               transferData.recipient === transferData.sender ? 'Cannot send to yourself' : 'Transfer'}
             </button>
           </form>
           {transferMessage && (

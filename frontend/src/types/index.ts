@@ -20,6 +20,25 @@ export interface Transaction {
   date?: string;
 }
 
+export interface TransactionHistory {
+  hash: string;
+  sender: string;
+  recipient: string;
+  amount: number;
+  timestamp: number;
+  block_index: number;
+  block_hash: string;
+  type: 'sent' | 'received';
+  date?: string;
+  formattedAmount?: string;
+}
+
+export interface TransactionHistoryResponse {
+  username: string;
+  transactions: TransactionHistory[];
+  total_transactions: number;
+}
+
 export interface TransferRequest {
   sender: string;
   recipient: string;
