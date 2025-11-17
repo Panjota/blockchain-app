@@ -27,7 +27,7 @@ export const Register: React.FC = () => {
 
     try {
       await register(credentials.username, credentials.password);
-      alert('Registration successful! Please login.');
+      alert('Cadastro realizado.');
       navigate('/login');
     } catch (err: any) {
       setError(err.message);
@@ -39,7 +39,7 @@ export const Register: React.FC = () => {
   return (
     <div className="auth-container">
       <header>
-        <h1>Register</h1>
+        <h1>Registro</h1>
         <nav>
           <Link to="/">Home</Link>
         </nav>
@@ -74,7 +74,7 @@ export const Register: React.FC = () => {
           </button>
         </form>
         <p>
-          Already have an account? <Link to="/login">Login here</Link>
+          Tem uma conta? <Link to="/login">Login aqui</Link>
         </p>
       </main>
     </div>

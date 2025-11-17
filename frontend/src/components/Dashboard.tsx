@@ -21,6 +21,13 @@ export const Dashboard: React.FC = () => {
     if (user) {
       setTransferData(prev => ({ ...prev, sender: user.username }));
       loadUserData();
+      
+      // Set up auto-refresh every 30 seconds to check for new transactions
+      const interval = setInterval(() => {
+        loadUserData();
+      }, 30000);
+
+      return () => clearInterval(interval);
     }
   }, [user]);
 
@@ -80,7 +87,7 @@ export const Dashboard: React.FC = () => {
   return (
     <div className="dashboard">
       <header>
-        <h1>Welcome to Your Dashboard</h1>
+        <h1>Bem vindo ao Dashboard</h1>
         <nav>
           <ul>
             <li><Link to="/">Home</Link></li>
@@ -96,14 +103,14 @@ export const Dashboard: React.FC = () => {
       
       <main>
         <section id="balance" className="dashboard-section">
-          <h2>Your Balance</h2>
+          <h2>Seu saldo</h2>
           <p className="balance-amount">${balance.toFixed(2)}</p>
         </section>
 
 
 
         <section id="transactions" className="dashboard-section">
-          <h2>Transaction History ({transactions.length})</h2>
+          <h2>Historico de Transação ({transactions.length})</h2>
           
           {/* Transaction Statistics */}
           <div className="transaction-stats">
@@ -126,14 +133,14 @@ export const Dashboard: React.FC = () => {
           </div>
           
           {transactions.length === 0 ? (
-            <p>No transactions yet.</p>
+            <p>Sem transações no momento</p>
           ) : (
             <div className="transaction-list">
               {transactions.map((transaction, index) => (
                 <div key={`${transaction.hash}-${index}`} className={`transaction-item ${transaction.type}`}>
                   <div className="transaction-header">
                     <span className={`transaction-type ${transaction.type}`}>
-                      {transaction.type === 'sent' ? '📤 Sent' : '📥 Received'}
+                      {transaction.type === 'sent' ? 'Sent' : 'Received'}
                     </span>
                     <span className="transaction-amount">
                       {transaction.type === 'sent' ? '-' : '+'}${transaction.formattedAmount || transaction.amount.toFixed(2)}
@@ -155,7 +162,7 @@ export const Dashboard: React.FC = () => {
                     <div className="transaction-row">
                       <span className="label">Block:</span>
                       <span className="value confirmed">
-                        ✅ #{transaction.block_index}
+                        #{transaction.block_index}
                       </span>
                     </div>
                     {transaction.hash && (
@@ -172,10 +179,10 @@ export const Dashboard: React.FC = () => {
         </section>
 
         <section id="transfer" className="dashboard-section">
-          <h2>Transfer Funds</h2>
+          <h2>Transferir fundos</h2>
           <form onSubmit={handleTransferSubmit} className="transfer-form">
             <div className="form-group">
-              <label htmlFor="recipient">Recipient:</label>
+              <label htmlFor="recipient">Destinatario:</label>
               <input
                 type="text"
                 id="recipient"
@@ -186,11 +193,11 @@ export const Dashboard: React.FC = () => {
                 required
               />
               {transferData.recipient === transferData.sender && transferData.recipient && (
-                <small className="error-text">⚠️ Cannot send to yourself</small>
+                <small className="error-text">Cannot send to yourself</small>
               )}
             </div>
             <div className="form-group">
-              <label htmlFor="amount">Amount:</label>
+              <label htmlFor="amount">Valor:</label>
               <input
                 type="number"
                 id="amount"

@@ -16,21 +16,68 @@ interface NetworkStats {
 export const NetworkStats: React.FC = () => {
   const [stats, setStats] = useState<NetworkStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [lastKnownBlock, setLastKnownBlock] = useState(0);
   const { logout } = useAuth();
 
   useEffect(() => {
     loadNetworkStats();
-  }, []);
+    
+    // Set up polling to check for updates every 5 seconds
+    const pollInterval = setInterval(async () => {
+      try {
+        const updateCheck = await walletService.checkNetworkUpdates(lastKnownBlock);
+        if (updateCheck.has_updates) {
+          console.log('New blocks detected, refreshing stats...');
+          refreshNetworkStats();
+        }
+      } catch (error) {
+        console.error('Error checking for updates:', error);
+      }
+    }, 5000);
+
+    // Set up auto-refresh every 30 seconds as backup
+    const refreshInterval = setInterval(() => {
+      console.log('Performing scheduled refresh...');
+      refreshNetworkStats();
+    }, 30000);
+
+    return () => {
+      clearInterval(pollInterval);
+      clearInterval(refreshInterval);
+    };
+  }, []); // Remove dependency on lastKnownBlock to avoid recreation
 
   const loadNetworkStats = async () => {
     try {
       const networkStats = await walletService.getNetworkStats();
       setStats(networkStats);
+      setLastUpdated(new Date());
+      setLastKnownBlock(networkStats?.total_blocks || 0);
     } catch (error) {
       console.error('Error loading network stats:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const refreshNetworkStats = async () => {
+    setRefreshing(true);
+    try {
+      const networkStats = await walletService.getNetworkStats();
+      setStats(networkStats);
+      setLastUpdated(new Date());
+      setLastKnownBlock(networkStats?.total_blocks || 0);
+    } catch (error) {
+      console.error('Error refreshing network stats:', error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const handleManualRefresh = () => {
+    refreshNetworkStats();
   };
 
   const handleLogout = () => {
@@ -44,7 +91,24 @@ export const NetworkStats: React.FC = () => {
   return (
     <div className="network-stats">
       <header>
-        <h1>Blockchain Network Statistics</h1>
+        <div className="header-content">
+          <h1>Estatísticas da Rede Blockchain</h1>
+          <div className="refresh-controls">
+            <button 
+              onClick={handleManualRefresh}
+              disabled={refreshing}
+              className={`refresh-btn ${refreshing ? 'refreshing' : ''}`}
+              title="Atualizar estatísticas"
+            >
+              {refreshing ? 'Atualizando...' : 'Atualizar'}
+            </button>
+            {lastUpdated && (
+              <span className="last-updated">
+                Última atualização: {lastUpdated.toLocaleTimeString()}
+              </span>
+            )}
+          </div>
+        </div>
         <nav>
           <ul>
             <li><Link to="/">Home</Link></li>
@@ -93,16 +157,6 @@ export const NetworkStats: React.FC = () => {
                 <div className="stat-item">
                   <h3>Total Transactions</h3>
                   <p className="stat-value">{stats.total_transactions}</p>
-                </div>
-                <div className="stat-item">
-                  <h3>Pending Transactions</h3>
-                  <p className="stat-value">{stats.pending_transactions}</p>
-                </div>
-                <div className="stat-item">
-                  <h3>Distribution Rate</h3>
-                  <p className="stat-value">
-                    {((stats.total_distributed / stats.total_supply) * 100).toFixed(2)}%
-                  </p>
                 </div>
               </div>
             </section>

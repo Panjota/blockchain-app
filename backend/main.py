@@ -47,6 +47,23 @@ def get_network_stats():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/network/check-updates', methods=['GET'])
+def check_network_updates():
+    """Check for updates since last known block index"""
+    try:
+        last_known_block = request.args.get('last_block', 0, type=int)
+        current_block_count = len(blockchain.chain)
+        
+        has_updates = current_block_count > last_known_block
+        
+        return jsonify({
+            'has_updates': has_updates,
+            'current_block_count': current_block_count,
+            'last_known_block': last_known_block
+        }), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/blockchain', methods=['GET'])
 def get_blockchain():
     """Get the entire blockchain"""

@@ -33,6 +33,16 @@ export const walletService = {
     }
   },
 
+  async checkNetworkUpdates(lastKnownBlock: number): Promise<any> {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/network/check-updates?last_block=${lastKnownBlock}`);
+      return response.data;
+    } catch (error: any) {
+      console.error('Error checking network updates:', error);
+      return { has_updates: false, current_block_count: 0 };
+    }
+  },
+
   async getTransactionHistory(username: string): Promise<any[]> {
     try {
       const response = await axios.get(`${API_BASE_URL}/transactions/${username}`);

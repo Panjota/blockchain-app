@@ -12,13 +12,13 @@ export const Home: React.FC = () => {
   return (
     <div className="home">
       <header>
-        <h1>Welcome to the Blockchain App</h1>
+        <h1>Blockchain App</h1>
         <nav>
           <ul>
             {isAuthenticated ? (
               <>
                 <li><Link to="/dashboard">Dashboard</Link></li>
-                <li><Link to="/network-stats">Network Stats</Link></li>
+                <li><Link to="/network-stats">Status da rede</Link></li>
                 <li>
                   <button 
                     onClick={handleLogout}
@@ -31,7 +31,7 @@ export const Home: React.FC = () => {
             ) : (
               <>
                 <li><Link to="/login">Login</Link></li>
-                <li><Link to="/register">Register</Link></li>
+                <li><Link to="/register">Registro</Link></li>
               </>
             )}
           </ul>
@@ -39,17 +39,17 @@ export const Home: React.FC = () => {
       </header>
       <main>
         <section>
-          <h2>About the App</h2>
+          <h2>Sobre o app</h2>
           <p>
-            This application allows users to register, log in, and transfer funds 
-            using a local blockchain infrastructure.
+            Este aplicativo permite que os usuários se registrem, façam login e transfiram fundos
+            usando uma infraestrutura blockchain local.
           </p>
           {isAuthenticated && user && (
             <div className="user-info">
-              <h3>Welcome back, <strong>{user.username}</strong>!</h3>
-              <p>You are successfully logged in.</p>
+              <h3>Bem vindo, <strong>{user.username}</strong>!</h3>
+              <p>Login realizado com sucesso</p>
               <Link to="/dashboard" className="dashboard-link">
-                Go to Dashboard
+                Vá para o Dashboard
               </Link>
             </div>
           )}
