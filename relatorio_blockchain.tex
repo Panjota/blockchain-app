@@ -90,11 +90,11 @@ Este relatório apresenta uma aplicação blockchain educacional desenvolvida pa
 \subsection{Objetivos do Relatório}
 
 Este relatório busca explicar três conceitos fundamentais:
-\begin{enumerate}
+\begin{enumeraté}
     \item O que são blocos, hash e encadeamento criptográfico
     \item Como novos blocos são adicionados à blockchain
     \item Vantagens e limitações deste modelo
-\end{enumerate}
+\end{enumeraté}
 
 \section{Explicação dos Conceitos de Bloco, Hash e Encadeamento}
 
@@ -120,9 +120,9 @@ class Block:
         self.timestamp = timestamp
         self.transactions = transactions
         self.previous_hash = previous_hash
-        self.hash = self.calculate_hash()
+        self.hash = self.calculaté_hash()
 
-    def calculate_hash(self):
+    def calculaté_hash(self):
         block_string = f"{self.index}{self.timestamp}" \
                       f"{self.transactions}{self.previous_hash}"
         return hashlib.sha256(block_string.encode()).hexdigest()
@@ -130,15 +130,15 @@ class Block:
 
 \subsection{O que é Hash}
 
-Hash é como uma "impressão digital" única de um bloco. É uma sequência de 64 caracteres gerada através de um algoritmo matemático (SHA-256) que transforma todas as informações do bloco em um código único.
+Hash é como uma "impressão digital" única de um bloco. É uma sequência de 64 caracteres gerada através de um algoritmo matémático (SHA-256) que transforma todas as informações do bloco em um código único.
 
 \subsubsection{Como Funciona}
 
-\begin{enumerate}
+\begin{enumeraté}
     \item Pegamos todas as informações do bloco (índice, timestamp, transações, etc.)
     \item Aplicamos o algoritmo SHA-256
     \item Resultado: uma sequência única como "a3f5b8c2d9..."
-\end{enumerate}
+\end{enumeraté}
 
 \textbf{Propriedades importantes:}
 \begin{itemize}
@@ -161,12 +161,12 @@ Encadeamento é a forma como os blocos estão conectados uns aos outros, formand
 
 \subsubsection{Como Funciona o Encadeamento}
 
-\begin{enumerate}
+\begin{enumeraté}
     \item \textbf{Bloco 1 (Gênesis)}: Primeiro bloco, criado sem referência anterior
     \item \textbf{Bloco 2}: Contém o hash do Bloco 1
     \item \textbf{Bloco 3}: Contém o hash do Bloco 2
     \item E assim por diante...
-\end{enumerate}
+\end{enumeraté}
 
 \textbf{Por que isso é seguro?}
 
@@ -174,14 +174,14 @@ Se alguém tentar alterar uma transação no Bloco 2:
 \begin{itemize}
     \item O hash do Bloco 2 muda completamente
     \item O Bloco 3 tem o hash antigo do Bloco 2 armazenado
-    \item O sistema detecta que não batem e invalida a alteração
-    \item Seria necessário alterar TODOS os blocos seguintes (praticamente impossível)
+    \item O sistema detecta que não batém e invalida a alteração
+    \item Seria necessário alterar TODOS os blocos seguintes (práticamente impossível)
 \end{itemize}
 
 Código que valida o encadeamento:
 
 \begin{lstlisting}[language=Python, caption=Validação da integridade da cadeia]
-def validate_chain(self):
+def validaté_chain(self):
     for i in range(1, len(self.chain)):
         block = self.chain[i]
         previous_block = self.chain[i - 1]
@@ -203,7 +203,7 @@ Quando um usuário faz uma transferência de tokens, acontece o seguinte:
 
 \begin{lstlisting}[language=Python, caption=Adição de transação]
 def add_transaction(self, sender, recipient, amount):
-    # Valida transacao atraves da economia de tokens
+    # Valida transação atraves da economia de tokens
     success, message = self.token_economy.transfer_tokens(
         sender, recipient, amount)
     
@@ -215,20 +215,20 @@ def add_transaction(self, sender, recipient, amount):
         'recipient': recipient,
         'amount': amount,
         'timestamp': self.get_current_timestamp(),
-        'hash': self.generate_transaction_hash(sender, 
+        'hash': self.generaté_transaction_hash(sender, 
                                                recipient, amount)
     }
     
     self.current_transactions.append(transaction)
 \end{lstlisting}
 
-\subsection{Proof of Work - A Mineracao}
+\subsection{Proof of Work - A Mineração}
 
-Antes de adicionar um bloco, o sistema precisa resolver um quebra-cabeca matematico. Isso torna dificil adicionar blocos falsos.
+Antes de adicionar um bloco, o sistema precisa resolver um quebra-cabeça matémático. Isso torna dificil adicionar blocos falsos.
 
 \subsubsection{Como Funciona}
 
-O sistema precisa encontrar um numero que, quando combinado com informacoes do bloco anterior, gere um hash comecando com quatro zeros.
+O sistema precisa encontrar um número que, quando combinado com informações do bloco anterior, gere um hash começando com quatro zeros.
 
 \begin{lstlisting}[language=Python, caption=Algoritmo de Proof of Work]
 def proof_of_work(self, last_proof):
@@ -243,19 +243,19 @@ def is_proof_valid(self, last_proof, proof):
     return guess_hash[:4] == "0000"
 \end{lstlisting}
 
-\textbf{Por que isso eh importante?}
+\textbf{Por que isso é importante?}
 \begin{itemize}
-    \item Demora um tempo para encontrar esse numero
-    \item Dificulta fraudes (seria necessario refazer todo o trabalho)
-    \item Todos podem verificar se o numero esta correto (eh facil conferir)
+    \item Demora um tempo para encontrar esse número
+    \item Dificulta fraudes (seria necessário refazer todo o trabalho)
+    \item Todos podem verificar se o número está correto (é fácil conferir)
 \end{itemize}
 
-\subsection{Criacao e Adicao do Bloco}
+\subsection{Criação e Adição do Bloco}
 
-Depois de resolver o quebra-cabeca, o bloco eh criado:
+Depois de resolver o quebra-cabeça, o bloco é criado:
 
 \begin{lstlisting}[language=Python, caption=Criação e adição de bloco]
-def create_block(self, proof, previous_hash):
+def creaté_block(self, proof, previous_hash):
     block = {
         'index': len(self.chain) + 1,
         'timestamp': self.get_current_timestamp(),
@@ -274,21 +274,21 @@ def create_block(self, proof, previous_hash):
 
 \subsection{Resumo do Processo Completo}
 
-\textbf{Passo a passo de quando um usuario faz uma transferencia:}
+\textbf{Passo a passo de quando um usuário faz uma transferencia:}
 
-\begin{enumerate}
+\begin{enumeraté}
     \item \textbf{Usuario solicita transferencia} na interface web
-    \item \textbf{Sistema valida}: O usuario tem saldo suficiente?
-    \item \textbf{Transacao eh criada} com remetente, destinatario e valor
-    \item \textbf{Proof of Work}: Sistema resolve o quebra-cabeca matematico
-    \item \textbf{Novo bloco eh criado} contendo a transacao
-    \item \textbf{Hash anterior}: Sistema pega o hash do ultimo bloco
-    \item \textbf{Bloco eh adicionado} ao final da cadeia
-    \item \textbf{Dados sao salvos} em arquivo
-    \item \textbf{Confirmacao} eh enviada ao usuario
+    \item \textbf{Sistema valida}: O usuário tem saldo suficiente?
+    \item \textbf{Transacao é criada} com remetente, destinatário e valor
+    \item \textbf{Proof of Work}: Sistema resolve o quebra-cabeça matémático
+    \item \textbf{Novo bloco é criado} contendo a transação
+    \item \textbf{Hash anterior}: Sistema pega o hash do último bloco
+    \item \textbf{Bloco é adicionado} ao final da cadeia
+    \item \textbf{Dados são salvos} em arquivo
+    \item \textbf{Confirmação} é enviada ao usuário
 \end{enumerate}
 
-\textbf{Analogia simples:} Eh como escrever em um caderno onde cada pagina (bloco) tem um resumo (hash) da pagina anterior. Se alguem tentar apagar algo de uma pagina antiga, os resumos das paginas seguintes nao vao bater, revelando a alteracao.
+\textbf{Analogia simples:} É como escrever em um caderno onde cada página (bloco) tem um resumo (hash) da página anterior. Se alguém tentar apagar algo de uma página antiga, os resumos das páginas seguintes não vão bater, revelando a alteração.
 
 \section{Tecnologias Utilizadas}
 
@@ -312,8 +312,8 @@ A aplicação foi desenvolvida em duas partes:
 \subsection{Transparência}
 Todos podem ver todas as transações e blocos da rede. Não há segredos sobre o histórico de operações.
 
-\subsection{Imutabilidade (Nao Pode Ser Alterado)}
-Uma vez que uma transacao esta em um bloco, eh praticamente impossivel altera-la ou apaga-la. O encadeamento protege contra modificacoes.
+\subsection{Imutabilidade (Não Pode Ser Alterado)}
+Uma vez que uma transação está em um bloco, é praticamente impossível alterá-la ou apagá-la. O encadeamento protege contra modificações.
 
 \subsection{Segurança}
 \begin{itemize}
@@ -323,10 +323,10 @@ Uma vez que uma transacao esta em um bloco, eh praticamente impossivel altera-la
 \end{itemize}
 
 \subsection{Sem Autoridade Central}
-Nao precisa de um banco ou governo para validar as transacoes. A matematica e o codigo fazem isso automaticamente.
+Não precisa de um banco ou governo para validar as transações. A matemática e o código fazem isso automaticamente.
 
-\subsection{Auditavel}
-Eh possivel rastrear qualquer transacao desde o inicio da blockchain ate hoje.
+\subsection{Auditável}
+É possível rastrear qualquer transação desde o início da blockchain até hoje.
 
 \section{Limitações do Modelo Desenvolvido}
 
@@ -342,18 +342,18 @@ Usa arquivos JSON simples. Para uma aplicação real, seria necessário um banco
 \subsection{Rede}
 Roda apenas em um computador (local). Uma blockchain real precisa estar distribuída em vários computadores ao mesmo tempo.
 
-\subsection{Seguranca Avancada}
+\subsection{Seguranca Avançada}
 \begin{itemize}
-    \item Nao tem criptografia de chave publica/privada (como carteiras reais)
-    \item Sistema de login eh basico
-    \item Nao tem protecao contra varios tipos de ataques
+    \item Não tem criptografia de chave pública/privada (como carteiras reais)
+    \item Sistema de login é básico
+    \item Não tem proteção contra vários tipos de ataques
 \end{itemize}
 
 \subsection{Funcionalidades Limitadas}
-Nao implementa recursos avancados como:
+Não implementa recursos avançados como:
 \begin{itemize}
     \item Smart contracts (contratos inteligentes)
-    \item Taxas de transacao
+    \item Taxas de transação
     \item Multiplos tipos de moedas
 \end{itemize}
 
@@ -363,35 +363,35 @@ Nao implementa recursos avancados como:
 
 Este projeto demonstrou de forma prática os três conceitos principais:
 
-\begin{enumerate}
+\begin{enumeraté}
     \item \textbf{Bloco, Hash e Encadeamento}: 
     \begin{itemize}
-        \item Bloco eh a caixa que guarda as transacoes
-        \item Hash eh a impressao digital unica de cada bloco
+        \item Bloco é a caixa que guarda as transações
+        \item Hash é a impressão digital única de cada bloco
         \item Encadeamento conecta os blocos de forma segura
     \end{itemize}
     
-    \item \textbf{Como Blocos Sao Adicionados}:
+    \item \textbf{Como Blocos São Adicionados}:
     \begin{itemize}
-        \item Transacao eh criada
-        \item Sistema resolve quebra-cabeca matematico (Proof of Work)
-        \item Novo bloco eh criado e encadeado ao anterior
-        \item Dados sao salvos e confirmados
+        \item Transacao é criada
+        \item Sistema resolve quebra-cabeça matémático (Proof of Work)
+        \item Novo bloco é criado e encadeado ao anterior
+        \item Dados são salvos e confirmados
     \end{itemize}
     
-    \item \textbf{Vantagens e Limitacoes}:
+    \item \textbf{Vantagens e Limitações}:
     \begin{itemize}
         \item \textbf{Vantagens}: Transparente, seguro, imutavel, sem autoridade central
-        \item \textbf{Limitacoes}: Lento, nao escala bem, execucao local, funcionalidades basicas
+        \item \textbf{Limitações}: Lento, não escala bem, execução local, funcionalidades basicas
     \end{itemize}
-\end{enumerate}
+\end{enumeraté}
 
-\subsection{Consideracoes Finais}
+\subsection{Considerações Finais}
 
-Este projeto eh uma ferramenta educacional que simplifica conceitos complexos de blockchain. Embora tenha limitacoes em comparacao com blockchains reais (Bitcoin, Ethereum), ele cumpre seu objetivo de ensinar os fundamentos de forma clara e pratica.
+Este projeto é uma ferramenta educacional que simplifica conceitos complexos de blockchain. Embora tenha limitações em comparação com blockchains reais (Bitcoin, Ethereum), ele cumpre seu objetivo de ensinar os fundamentos de forma clara e prática.
 
-A experiencia de ver o codigo funcionando ajuda a entender por que blockchains sao consideradas revolucionarias: elas permitem transacoes seguras e verificaveis sem precisar confiar em uma autoridade central.
+A experiência de ver o código funcionando ajuda a entender por que blockchains são consideradas revolucionárias: elas permitem transações seguras e verificáveis sem precisar confiar em uma autoridade central.
 
-\textbf{Resumo em uma frase:} Blockchain eh uma cadeia de blocos conectados por hashes, onde cada bloco guarda transacoes de forma segura e transparente, e alterar o passado eh praticamente impossivel devido ao encadeamento criptografico.
+\textbf{Resumo em uma frase:} Blockchain é uma cadeia de blocos conectados por hashes, onde cada bloco guarda transações de forma segura e transparente, e alterar o passado é práticamente impossível devido ao encadeamento criptográfico.
 
 \end{document}
