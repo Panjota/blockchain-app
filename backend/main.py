@@ -42,6 +42,8 @@ def get_transaction_history(username):
 def get_network_stats():
     """Get blockchain network statistics"""
     try:
+        # Force reload blockchain from file to get latest data
+        blockchain.chain, blockchain.current_transactions = blockchain.load_blockchain()
         stats = blockchain.get_network_stats()
         return jsonify(stats), 200
     except Exception as e:
@@ -68,9 +70,24 @@ def check_network_updates():
 def get_blockchain():
     """Get the entire blockchain"""
     try:
+        # Force reload blockchain from file to get latest data
+        blockchain.chain, blockchain.current_transactions = blockchain.load_blockchain()
         return jsonify({
             'chain': blockchain.chain,
             'length': len(blockchain.chain)
+        }), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/debug/reload', methods=['POST'])
+def reload_blockchain():
+    """Debug endpoint to force reload blockchain from file"""
+    try:
+        blockchain.chain, blockchain.current_transactions = blockchain.load_blockchain()
+        return jsonify({
+            'message': 'Blockchain reloaded successfully',
+            'blocks': len(blockchain.chain),
+            'pending': len(blockchain.current_transactions)
         }), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
